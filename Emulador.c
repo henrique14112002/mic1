@@ -2,13 +2,30 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+
+#define TAM_MEMORIA 100000000
+#define TAM_MICROINSTRUCAO 512
+#define ENDERECO_INICIO_PROGRAMA 0x0401
 // Tipos
 
 typedef unsigned char byte; // 8 bits
 typedef unsigned int palavra; // 32 bits
 typedef unsigned long int microinstrucao; // 64 bits, no caso de acordo com a aquitetura cada microinstrução usa apenas 36bits de espaço 
+typedef enum {
+    REG_MDR = 0,
+    REG_PC,
+    REG_MBR_SINAL,
+    REG_MBR,
+    REG_SP,
+    REG_LV,
+    REG_CPP,
+    REG_TOS,
+    REG_OPC
+} Registrador_B;
 
 // Registradores 
+
 
 palavra MAR = 0, MDR = 0, PC = 0; // Acesso da Memoria
 byte MBR = 0;			  // Acesso da Memoria
@@ -18,8 +35,13 @@ palavra SP = 0, LV = 0, TOS = 0, // Operação da ULA
 
 microinstrucao MIR; // Contem a Microinstrução Atual
 palavra MPC = 0; // Contem o endereco para a proxima Microinstrução
-
 // Barramentos
+typedef struct {
+    palavra MAR, MDR, PC, SP, LV, TOS, OPC, CPP, H;
+    byte MBR, N, Z;
+    palavra MPC;
+    microinstrucao MIR;
+} EstadoMaquina;
 
 palavra Barramento_B, Barramento_C;
 
@@ -54,12 +76,17 @@ void operar_memoria();
 void pular();
 
 void binario(void* valor, int tipo);
-
-
+/**
+ * @brief Decodifica os campos da microinstrução MIR atual.
+ */
+void decodificar_microinstrucao();
+void imprimir_binario_byte(byte valor);
+void imprimir_binario_palavra(palavra valor);
+void imprimir_binario_microinstrucao(microinstrucao valor);
 
 // Laço Principal
 
-int main(int argc, const char *argv[]){
+int main.c(int argc, const char *argv[]){
 	carregar_microprogram_de_controle();
 	carregar_programa(argv[1]);
 	while(1){
@@ -201,7 +228,14 @@ void pular(){
 
 void exibir_processos(){
 
-	if(LV && SP){
+if (Barramento_C) {
+    N = 0;
+    Z = 1;
+} else {
+    N = 1;
+    Z = 0;
+}
+   if(LV && SP){
 		printf("\t\t  PILHA DE OPERANDOS\n");
 		printf("========================================\n");
 		printf("     END");
@@ -322,3 +356,11 @@ void binario(void* valor, int tipo){
 		} break;
 	}
 }
+
+Z = (Barramento_C == 0);
+N = !Z;
+#ifdef MODO_DEBUG
+    getchar();
+#endif
+
+
